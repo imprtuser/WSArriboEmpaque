@@ -143,7 +143,7 @@ namespace WSArriboService
         }
 
         [WebMethod]
-        public void getFolios(int idPlant, String folio, String dateIni, String dateFin)
+        public void getFolios(int idPlant, String folio, String dateIni, String dateFin, int idFolioHeader)
         {
             try
             {
@@ -169,10 +169,10 @@ namespace WSArriboService
                     parameters.Add("@dateFin", dateFin);
                 }
 
-                //if (idFolioHeader > 0)
-                //{
-                //    parameters.Add("@idFolioHeader", idFolioHeader);
-                //}
+                if (idFolioHeader > 0)
+                {
+                    parameters.Add("@idFolioHeader", idFolioHeader);
+                }
 
                 ds = DataAccess.executeStoreProcedureDataSet("spr_PackWedge_GetFolios", parameters, "dbConn");
 
