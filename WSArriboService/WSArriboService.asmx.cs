@@ -28,95 +28,6 @@ namespace WSArriboService
         }
 
         [WebMethod]
-        public void savePorts(String xmlPorts)
-        {
-            try
-            {
-                DataTable dt = new DataTable();
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("@xmlPorts", xmlPorts);
-
-                String message = String.Empty;
-                String descriptionType = String.Empty;
-                int response = 0;
-
-                dt = DataAccess.executeStoreProcedureDataTable("spr_PackWedge_InsUpPorts", parameters, "dbConn");
-
-                if (dt.Rows.Count > 0)
-                {
-                    response = Convert.ToInt32(dt.Rows[0]["responseType"].ToString());
-                    descriptionType = dt.Rows[0]["descriptionType"].ToString();
-                    message = dt.Rows[0]["message"].ToString();
-                    if (response == 1)
-                    {
-                        Context.Response.Write("{\n" +
-                          "  \"table1\": [\n" +
-                              "    {\n" +
-                              "      \"responseType\": \"" + response + "\",\n" +
-                              "      \"descriptionResponse\": \"" + descriptionType + "\",\n" +
-                              "      \"message\": \"" + message + "\"\n" +
-                              "    }\n" +
-                          "  ]\n" +
-                        "}");
-
-                    }
-                    else if (response == 2)
-                    {
-                        Context.Response.Write("{\n" +
-                          "  \"table1\": [\n" +
-                              "    {\n" +
-                              "      \"responseType\": \"" + response + "\",\n" +
-                              "      \"descriptionResponse\": \"" + descriptionType + "\",\n" +
-                              "      \"message\": \"" + message + "\"\n" +
-                              "    }\n" +
-                          "  ]\n" +
-                        "}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Context.Response.Write("{\n" +
-                    "  \"table1\": [\n" +
-                    "    {\n" +
-                        "      \"responseType\": 2,\n" +
-                        "      \"descriptionResponse\": \"Error\",\n" +
-                        "      \"message\": \"" + ex.ToString() + "\"\n" +
-                    "    }\n" +
-                    "  ]\n" +
-                "}");
-            }
-        }
-
-        [WebMethod]
-        public void getPorts()
-        {
-
-            try
-            {
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                DataTable dtPlants = new DataTable();
-
-                dtPlants = DataAccess.executeStoreProcedureDataTable("spr_PackWedge_GetPorts", parameters, "dbConn");
-                Context.Response.Write(JsonConvert.SerializeObject(dtPlants, Formatting.Indented));
-                Context.Response.ContentType = "text/plain; charset=UTF-8";
-            }
-            catch (Exception ex)
-            {
-                Context.Response.Write("{\n" +
-                    "  \"table1\": [\n" +
-                    "    {\n" +
-                        "      \"responseType\": 2,\n" +
-                        "      \"descriptionResponse\": \"Error\",\n" +
-                        "      \"message\": \"" + ex.ToString() + "\"\n" +
-                    "    }\n" +
-                    "  ]\n" +
-                "}");
-            }
-
-        }
-
-        [WebMethod]
         public void getPlants()
         {
             try
@@ -143,7 +54,7 @@ namespace WSArriboService
         }
 
         [WebMethod]
-        public void getFolios(int idPlant, String folio, String dateIni, String dateFin, int idFolioHeader)
+        public void getFoliosV2(int idPlant, String folio, String dateIni, String dateFin, int idFolioHeader)
         {
             try
             {
@@ -174,6 +85,53 @@ namespace WSArriboService
                     parameters.Add("@idFolioHeader", idFolioHeader);
                 }
 
+                ds = DataAccess.executeStoreProcedureDataSet("spr_PackWedge_GetFoliosV2", parameters, "dbConn");
+
+                Context.Response.Write(JsonConvert.SerializeObject(ds, Formatting.Indented));
+                Context.Response.ContentType = "text/plain; charset=UTF-8";
+
+            }
+            catch (Exception ex)
+            {
+                Context.Response.Write("{\n" +
+                    "  \"table1\": [\n" +
+                    "    {\n" +
+                        "      \"responseType\": 2,\n" +
+                        "      \"descriptionResponse\": \"Error\",\n" +
+                        "      \"message\": \"" + ex.ToString() + "\"\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                "}");
+            }
+        }
+
+        [WebMethod]
+        public void getFolios(int idPlant, String folio, String dateIni, String dateFin)
+        {
+            try
+            {
+                DataSet ds = new DataSet();
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                if (idPlant > 0)
+                {
+                    parameters.Add("@idPlant", idPlant);
+                }
+
+                if (!String.IsNullOrEmpty(folio))
+                {
+                    parameters.Add("@folio", folio);
+                }
+
+                if (!String.IsNullOrEmpty(dateIni))
+                {
+                    parameters.Add("@dateIni", dateIni);
+                }
+
+                if (!String.IsNullOrEmpty(dateFin))
+                {
+                    parameters.Add("@dateFin", dateFin);
+                }
+
                 ds = DataAccess.executeStoreProcedureDataSet("spr_PackWedge_GetFolios", parameters, "dbConn");
 
                 Context.Response.Write(JsonConvert.SerializeObject(ds, Formatting.Indented));
@@ -202,7 +160,7 @@ namespace WSArriboService
 
 
         [WebMethod]
-        public void saveInfoFolio(String xmlFoliosHeader, String xmlFoliosDetails)
+        public void saveInfoFolioV2(String xmlFoliosHeader, String xmlFoliosDetails)
         {
             try
             {
@@ -215,7 +173,7 @@ namespace WSArriboService
                 String descriptionType = String.Empty;
                 int response = 0;
 
-                dt = DataAccess.executeStoreProcedureDataTable("spr_PackWedge_InsUpInfoFolio", parameters, "dbConn");
+                dt = DataAccess.executeStoreProcedureDataTable("spr_PackWedge_InsUpInfoFolioV2", parameters, "dbConn");
 
                 if (dt.Rows.Count > 0)
                 {
@@ -264,7 +222,70 @@ namespace WSArriboService
 
 
         [WebMethod]
-        public void getInfoFolio(String folio)
+        public void saveInfoFolio(String xmlFoliosHeader, String xmlFoliosDetails)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("@xmlFoliosHeader", xmlFoliosHeader);
+                parameters.Add("@xmlFoliosDetails", xmlFoliosDetails);
+
+                String message = String.Empty;
+                String descriptionType = String.Empty;
+                int response = 0;
+
+                dt = DataAccess.executeStoreProcedureDataTable("spr_PackWedge_InsUpInfoFolio", parameters, "dbConn");
+
+                if (dt.Rows.Count > 0)
+                {
+                    response = Convert.ToInt32(dt.Rows[0]["responseType"].ToString());
+                    descriptionType = dt.Rows[0]["descriptionType"].ToString();
+                    message = dt.Rows[0]["message"].ToString();
+                    if (response == 1)
+                    {
+                        Context.Response.Write("{\n" +
+                          "  \"table1\": [\n" +
+                              "    {\n" +
+                              "      \"responseType\": \"" + response + "\",\n" +
+                              "      \"descriptionResponse\": \"" + descriptionType + "\",\n" +
+                              "      \"message\": \"" + message + "\"\n" +
+                              "    }\n" +
+                          "  ]\n" +
+                        "}");
+
+                    }
+                    else if (response == 2)
+                    {
+                        Context.Response.Write("{\n" +
+                          "  \"table1\": [\n" +
+                              "    {\n" +
+                              "      \"responseType\": \"" + response + "\",\n" +
+                              "      \"descriptionResponse\": \"" + descriptionType + "\",\n" +
+                              "      \"message\": \"" + message + "\"\n" +
+                              "    }\n" +
+                          "  ]\n" +
+                        "}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Context.Response.Write("{\n" +
+                    "  \"table1\": [\n" +
+                    "    {\n" +
+                        "      \"responseType\": 2,\n" +
+                        "      \"descriptionResponse\": \"Error\",\n" +
+                        "      \"message\": \"" + ex.ToString() + "\"\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                "}");
+            }
+        }
+
+
+        [WebMethod]
+        public void getInfoFolioV2(String folio)
         {
             try
             {
@@ -273,7 +294,7 @@ namespace WSArriboService
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("@vFolio", folio);
 
-                ds = DataAccess.executeStoreProcedureDataSet("spr_PackWedge_GetInfoFolio", parameters, "dbConn");
+                ds = DataAccess.executeStoreProcedureDataSet("spr_PackWedge_GetInfoFolioV2", parameters, "dbConn");
 
                 Context.Response.Write(JsonConvert.SerializeObject(ds, Formatting.Indented));
                 Context.Response.ContentType = "text/plain; charset=UTF-8";
@@ -294,6 +315,39 @@ namespace WSArriboService
             }
         }
 
+
+        [WebMethod]
+        public void getInfoFolio(String folio)
+        {
+            try
+            {
+                DataSet ds = new DataSet();
+
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("@vFolio", folio);
+
+                ds = DataAccess.executeStoreProcedureDataSet("spr_PackWedge_GetInfoFolio", parameters, "dbConn");
+
+                Context.Response.Write(JsonConvert.SerializeObject(ds, Formatting.Indented));
+                Context.Response.ContentType = "text/plain; charset=UTF-8";
+
+
+            }
+            catch (Exception ex)
+            {
+                Context.Response.Write("{\n" +
+               "  \"table1\": [\n" +
+                 "    {\n" +
+                   "      \"responseType\": 2,\n" +
+                   "      \"descriptionResponse\": \"ErrorWS\",\n" +
+                   "      \"message\": \"" + ex.ToString() + "\"\n" +
+                 "    }\n" +
+               "  ]\n" +
+             "}");
+            }
+        }
+
+
         [WebMethod]
         public void getInfoFoliosByID(int idFolioHeader)
         {
@@ -305,6 +359,36 @@ namespace WSArriboService
                 parameters.Add("@idFolioHeader", idFolioHeader);
 
                 ds = DataAccess.executeStoreProcedureDataSet("spr_PackWedge_GetInfoFoliosByID", parameters, "dbConn");
+
+                Context.Response.Write(JsonConvert.SerializeObject(ds, Formatting.Indented));
+                Context.Response.ContentType = "text/plain; charset=UTF-8";
+            }
+            catch (Exception ex)
+            {
+                Context.Response.Write("{\n" +
+                "  \"table1\": [\n" +
+                  "    {\n" +
+                    "      \"responseType\": 2,\n" +
+                    "      \"descriptionResponse\": \"ErrorWS\",\n" +
+                    "      \"message\": \"" + ex.ToString() + "\"\n" +
+                  "    }\n" +
+                "  ]\n" +
+              "}");
+            }
+        }
+
+
+        [WebMethod]
+        public void getInfoFoliosByIDV2(int idFolioHeader)
+        {
+            try
+            {
+                DataSet ds = new DataSet();
+
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("@idFolioHeader", idFolioHeader);
+
+                ds = DataAccess.executeStoreProcedureDataSet("spr_PackWedge_GetInfoFoliosByIDV2", parameters, "dbConn");
 
                 Context.Response.Write(JsonConvert.SerializeObject(ds, Formatting.Indented));
                 Context.Response.ContentType = "text/plain; charset=UTF-8";
